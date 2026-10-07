@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+python-multipart
+PyMuPDF
+pdfplumber
+pdf2image
+opencv-python-headless
+numpy
+pytesseract
+Pillow
+python-docx
+langdetect

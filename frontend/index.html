@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MCQ Extractor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <div class="page">
+
+    <!-- ============ HEADER ============ -->
+    <header class="app-header">
+      <div class="mark" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+          <path d="M4 4H12M4 4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M26 4H18M26 4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4 26H12M4 26V18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M26 26H18M26 26V18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="15" cy="15" r="3.2" fill="currentColor"/>
+        </svg>
+      </div>
+      <h1>MCQ Extractor</h1>
+      <p class="tagline">Upload a question paper — English, Hindi, Marathi, or a mix — and get every question and its four options, in order, ready to download.</p>
+    </header>
+
+    <!-- ============ SCREEN 1: UPLOAD ============ -->
+    <main id="screen-upload" class="screen">
+
+      <form id="upload-form">
+
+        <div id="dropzone" class="dropzone">
+          <div class="dropzone-corner tl"></div>
+          <div class="dropzone-corner tr"></div>
+          <div class="dropzone-corner bl"></div>
+          <div class="dropzone-corner br"></div>
+
+          <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.pdf,.txt,.docx" hidden />
+
+          <div id="dropzone-empty" class="dropzone-content">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" class="upload-icon">
+              <path d="M20 26V7M20 7L13 14M20 7L27 14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 26V30C7 31.6569 8.34315 33 10 33H30C31.6569 33 33 31.6569 33 30V26" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p class="dz-main">Drag and drop a document, or <span class="dz-link">browse your files</span></p>
+            <p class="dz-formats">Supports JPG, JPEG, PNG, PDF, TXT and DOCX</p>
+          </div>
+
+          <div id="dropzone-file" class="dropzone-content" hidden>
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" class="file-icon">
+              <path d="M9 4H20L27 11V30H9V4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M20 4V11H27" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+            <p class="file-name" id="file-name">document.pdf</p>
+            <p class="file-size" id="file-size">1.2 MB</p>
+            <button type="button" id="remove-file" class="link-btn">Choose a different file</button>
+          </div>
+        </div>
+
+        <div class="controls-row">
+          <label for="language-select" class="field-label">Document language</label>
+          <select id="language-select" class="language-select">
+            <option value="auto" selected>Auto Detect</option>
+            <option value="english">English</option>
+            <option value="hindi">Hindi</option>
+            <option value="marathi">Marathi</option>
+            <option value="english_hindi">English + Hindi</option>
+            <option value="english_marathi">English + Marathi</option>
+            <option value="hindi_marathi">Hindi + Marathi</option>
+            <option value="english_hindi_marathi">English + Hindi + Marathi</option>
+          </select>
+        </div>
+
+        <button type="submit" id="extract-btn" class="primary-btn" disabled>Extract MCQs</button>
+
+        <p id="upload-error" class="error-text" hidden></p>
+      </form>
+
+    </main>
+
+    <!-- ============ SCREEN 2: PROCESSING ============ -->
+    <main id="screen-processing" class="screen" hidden>
+      <div class="processing-box">
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="processing-step" id="processing-step">Processing document...</p>
+      </div>
+    </main>
+
+    <!-- ============ SCREEN 3: RESULTS ============ -->
+    <main id="screen-results" class="screen" hidden>
+
+      <section class="summary-card">
+        <div class="summary-title">Extraction completed</div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">Total questions</span>
+            <span class="summary-value" id="summary-total">0</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Language(s)</span>
+            <span class="summary-value" id="summary-languages">—</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Format</span>
+            <span class="summary-value" id="summary-format">—</span>
+          </div>
+        </div>
+        <p class="summary-note" id="summary-incomplete" hidden></p>
+      </section>
+
+      <div class="download-row">
+        <button id="download-json" class="secondary-btn">Download JSON</button>
+        <button id="download-docx" class="secondary-btn">Download DOCX</button>
+      </div>
+
+      <div id="questions-list" class="questions-list"></div>
+
+      <section id="incomplete-section" class="incomplete-section" hidden>
+        <h2 class="incomplete-title">Incomplete questions</h2>
+        <p class="summary-note">These were found but couldn't be fully extracted (missing question text or one or more options), so they're kept separate from the results above.</p>
+        <div id="incomplete-list" class="questions-list"></div>
+      </section>
+
+      <section id="needs-review-section" class="incomplete-section" hidden>
+        <h2 class="incomplete-title">Needs review</h2>
+        <p class="summary-note">The parser couldn't confidently determine where these question/option boundaries were (e.g. no question number was detected, or an option letter repeated) - please verify these manually rather than trusting them as-is.</p>
+        <div id="needs-review-list" class="questions-list"></div>
+      </section>
+
+      <button id="restart-btn" class="primary-btn outline-btn">Process another document</button>
+
+    </main>
+
+  </div>
+
+  <script src="/script.js"></script>
+</body>
+</html>
